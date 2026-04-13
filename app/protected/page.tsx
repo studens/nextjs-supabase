@@ -5,15 +5,47 @@ import { InfoIcon } from "lucide-react";
 import { FetchDataSteps } from "@/components/tutorial/fetch-data-steps";
 import { Suspense } from "react";
 
-async function UserDetails() {
+async function UserProfile() {
   const supabase = await createClient();
-  const { data, error } = await supabase.auth.getClaims();
+  const { data: authData, error: authError } = await supabase.auth.getUser();
 
-  if (error || !data?.claims) {
+  if (authError || !authData?.user) {
     redirect("/auth/login");
   }
 
-  return JSON.stringify(data.claims, null, 2);
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", authData.user.id)
+    .single();
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-2 gap-2 text-sm">
+        <span className="font-medium text-muted-foreground">이름</span>
+        <span>{profile?.full_name ?? "—"}</span>
+
+        <span className="font-medium text-muted-foreground">이메일</span>
+        <span>{profile?.email ?? authData.user.email ?? "—"}</span>
+
+        <span className="font-medium text-muted-foreground">아바타</span>
+        <span>{profile?.avatar_url ?? "—"}</span>
+
+        <span className="font-medium text-muted-foreground">웹사이트</span>
+        <span>{profile?.website ?? "—"}</span>
+
+        <span className="font-medium text-muted-foreground">자기소개</span>
+        <span>{profile?.bio ?? "—"}</span>
+
+        <span className="font-medium text-muted-foreground">가입일</span>
+        <span>
+          {profile?.created_at
+            ? new Date(profile.created_at).toLocaleDateString("ko-KR")
+            : "—"}
+        </span>
+      </div>
+    </div>
+  );
 }
 
 export default function ProtectedPage() {
@@ -22,17 +54,16 @@ export default function ProtectedPage() {
       <div className="w-full">
         <div className="bg-accent text-sm p-3 px-5 rounded-md text-foreground flex gap-3 items-center">
           <InfoIcon size="16" strokeWidth={2} />
-          This is a protected page that you can only see as an authenticated
-          user
+          이 페이지는 로그인한 사용자만 볼 수 있는 보호된 페이지입니다.
         </div>
       </div>
       <div className="flex flex-col gap-2 items-start">
-        <h2 className="font-bold text-2xl mb-4">Your user details</h2>
-        <pre className="text-xs font-mono p-3 rounded border max-h-32 overflow-auto">
-          <Suspense>
-            <UserDetails />
+        <h2 className="font-bold text-2xl mb-4">내 프로필</h2>
+        <div className="p-4 rounded border w-full max-w-md">
+          <Suspense fallback={<p className="text-sm text-muted-foreground">로딩 중...</p>}>
+            <UserProfile />
           </Suspense>
-        </pre>
+        </div>
       </div>
       <div>
         <h2 className="font-bold text-2xl mb-4">Next steps</h2>
