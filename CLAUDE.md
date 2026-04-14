@@ -5,16 +5,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev      # 개발 서버 실행 (localhost:3000)
-npm run build    # 프로덕션 빌드
-npm run lint     # ESLint 검사
+npm run dev          # 개발 서버 실행 (localhost:3000)
+npm run build        # 프로덕션 빌드
+npm run lint         # ESLint 검사
+npm run lint:fix     # ESLint 자동 수정
+npm run format       # Prettier 전체 포맷
+npm run format:check # Prettier 포맷 검사 (CI용)
+npm run type-check   # TypeScript 타입 검사 (빌드 없이)
 ```
 
 환경 변수 설정 (`.env.local` 파일 필요):
+
 ```
 NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
 ```
+
+### Git Hooks (자동 실행)
+
+- **pre-commit**: lint-staged → 변경된 파일만 ESLint + Prettier 자동 적용
+- **pre-push**: `type-check` → 전체 TypeScript 타입 검사
+
+### 코드 품질 도구
+
+- **ESLint**: `next/core-web-vitals` + `next/typescript` + `prettier` (충돌 방지)
+- **Prettier**: 큰따옴표, 세미콜론, trailing comma all 설정. `prettier-plugin-tailwindcss`로 Tailwind 클래스 순서 자동 정렬
 
 ## Architecture
 
@@ -59,6 +74,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
 ## Docs
 
 `docs/guides/` 에 한국어 가이드 있음:
+
 - `nextjs-15.md` — Next.js 15 사용 패턴 및 금지 사항
 - `component-patterns.md` — 컴포넌트 설계 패턴
 - `project-structure.md` — 폴더/파일 구조 규칙
