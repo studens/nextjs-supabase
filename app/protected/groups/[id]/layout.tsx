@@ -1,3 +1,6 @@
+import { GroupTabNav } from "@/components/group-tab-nav";
+import { BreadcrumbNav } from "@/components/breadcrumb-nav";
+
 export default async function GroupLayout({
   children,
   params,
@@ -5,8 +8,13 @@ export default async function GroupLayout({
   children: React.ReactNode;
   params: Promise<{ id: string }>;
 }) {
-  // id는 향후 탭 네비게이션 구현 시 사용
-  void (await params);
+  const { id } = await params;
 
-  return <div>{children}</div>;
+  return (
+    <div className="flex w-full flex-col gap-4">
+      <BreadcrumbNav />
+      <GroupTabNav groupId={id} />
+      <div>{children}</div>
+    </div>
+  );
 }
