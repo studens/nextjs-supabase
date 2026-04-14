@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
+import { type Profile } from "@/lib/database.types";
 import { InfoIcon } from "lucide-react";
 import { FetchDataSteps } from "@/components/tutorial/fetch-data-steps";
 import { Suspense } from "react";
@@ -17,7 +18,7 @@ async function UserProfile() {
     .from("profiles")
     .select("*")
     .eq("id", authData.user.id)
-    .single();
+    .single<Profile>();
 
   return (
     <div className="flex flex-col gap-4">
@@ -50,23 +51,27 @@ async function UserProfile() {
 
 export default function ProtectedPage() {
   return (
-    <div className="flex-1 w-full flex flex-col gap-12">
+    <div className="flex w-full flex-1 flex-col gap-12">
       <div className="w-full">
-        <div className="bg-accent text-sm p-3 px-5 rounded-md text-foreground flex gap-3 items-center">
-          <InfoIcon size="16" strokeWidth={2} />
-          이 페이지는 로그인한 사용자만 볼 수 있는 보호된 페이지입니다.
+        <div className="flex items-center gap-3 rounded-md bg-accent p-3 px-5 text-sm text-foreground">
+          <InfoIcon size="16" strokeWidth={2} />이 페이지는 로그인한 사용자만 볼
+          수 있는 보호된 페이지입니다.
         </div>
       </div>
-      <div className="flex flex-col gap-2 items-start">
-        <h2 className="font-bold text-2xl mb-4">내 프로필</h2>
-        <div className="p-4 rounded border w-full max-w-md">
-          <Suspense fallback={<p className="text-sm text-muted-foreground">로딩 중...</p>}>
+      <div className="flex flex-col items-start gap-2">
+        <h2 className="mb-4 text-2xl font-bold">내 프로필</h2>
+        <div className="w-full max-w-md rounded border p-4">
+          <Suspense
+            fallback={
+              <p className="text-sm text-muted-foreground">로딩 중...</p>
+            }
+          >
             <UserProfile />
           </Suspense>
         </div>
       </div>
       <div>
-        <h2 className="font-bold text-2xl mb-4">Next steps</h2>
+        <h2 className="mb-4 text-2xl font-bold">Next steps</h2>
         <FetchDataSteps />
       </div>
     </div>
