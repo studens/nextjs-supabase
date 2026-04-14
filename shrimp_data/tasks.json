@@ -1,0 +1,284 @@
+{
+  "tasks": [
+    {
+      "id": "7730f87c-3845-4f7b-a557-f49837dc0625",
+      "name": "그룹 목록 및 생성 페이지 생성",
+      "description": "params가 없는 2개 페이지 생성:\n- app/protected/groups/page.tsx (내 그룹 목록)\n- app/protected/groups/new/page.tsx (그룹 생성)\n\n각 페이지는 인증 확인 후 최소 UI 렌더링.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2026-04-14T08:53:34.504Z",
+      "updatedAt": "2026-04-14T08:55:36.546Z",
+      "relatedFiles": [
+        {
+          "path": "app/protected/groups/page.tsx",
+          "type": "CREATE",
+          "description": "내 그룹 목록 페이지"
+        },
+        {
+          "path": "app/protected/groups/new/page.tsx",
+          "type": "CREATE",
+          "description": "그룹 생성 페이지"
+        },
+        {
+          "path": "app/protected/page.tsx",
+          "type": "REFERENCE",
+          "description": "기존 인증 확인 패턴 참고"
+        },
+        {
+          "path": "lib/supabase/server.ts",
+          "type": "DEPENDENCY",
+          "description": "createClient 함수"
+        }
+      ],
+      "implementationGuide": "// app/protected/groups/page.tsx\nasync function GroupsPage() {\n  supabase = await createClient()\n  { data: authData, error } = await supabase.auth.getUser()\n  if (error || !authData?.user) redirect('/auth/login')\n  return <div><h1>내 그룹 목록</h1><p>준비 중</p></div>\n}\n\n// app/protected/groups/new/page.tsx (동일 패턴, h1은 '그룹 생성')",
+      "verificationCriteria": "- /protected/groups 접속 시 '내 그룹 목록' h1과 '준비 중' 텍스트 표시\n- /protected/groups/new 접속 시 '그룹 생성' h1과 '준비 중' 텍스트 표시\n- 미인증 상태에서 접속 시 /auth/login으로 리디렉션\n- TypeScript 타입 에러 없음",
+      "analysisResult": "Task 002: /app/protected/groups/ 하위에 12개 빈 페이지와 1개 그룹 공통 레이아웃을 생성한다. 모든 페이지는 Next.js 15 App Router Server Component 패턴을 따르며, 인증 확인(getUser → redirect) 후 최소 UI(h1 + 준비 중 텍스트)를 렌더링한다. 동적 라우트 params는 Promise로 받아 await로 언래핑한다.",
+      "summary": "2개 파일 생성 완료. app/protected/groups/page.tsx (내 그룹 목록), app/protected/groups/new/page.tsx (그룹 생성). 기존 protected/page.tsx 패턴 그대로 적용 — async Server Component, supabase.auth.getUser() 인증 확인, 미인증 시 /auth/login redirect. Tailwind 클래스(text-2xl font-bold, text-muted-foreground) 적용하여 기존 스타일 일관성 유지.",
+      "completedAt": "2026-04-14T08:55:36.543Z"
+    },
+    {
+      "id": "f9840fd5-0f77-4768-9386-b394507f0be8",
+      "name": "그룹 공통 레이아웃 및 그룹 홈 페이지 생성",
+      "description": "- app/protected/groups/[id]/layout.tsx (그룹 공통 레이아웃 골격)\n- app/protected/groups/[id]/page.tsx (그룹 홈)\n\nlayout.tsx는 children을 받는 최소 래퍼. 향후 탭 네비게이션 추가 예정 자리 포함.",
+      "notes": "layout.tsx에서 인증 확인 안 함 — 기존 protected/layout.tsx 패턴과 동일. id 변수는 현재 사용하지 않으므로 lint 경고 방지를 위해 void 처리 또는 주석 처리.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2026-04-14T08:53:34.504Z",
+      "updatedAt": "2026-04-14T08:59:37.309Z",
+      "relatedFiles": [
+        {
+          "path": "app/protected/groups/[id]/layout.tsx",
+          "type": "CREATE",
+          "description": "그룹 공통 레이아웃"
+        },
+        {
+          "path": "app/protected/groups/[id]/page.tsx",
+          "type": "CREATE",
+          "description": "그룹 홈 페이지"
+        },
+        {
+          "path": "app/protected/layout.tsx",
+          "type": "REFERENCE",
+          "description": "상위 레이아웃 패턴 참고"
+        }
+      ],
+      "implementationGuide": "// app/protected/groups/[id]/layout.tsx\nexport default async function GroupLayout({\n  children,\n  params,\n}: {\n  children: React.ReactNode\n  params: Promise<{ id: string }>\n}) {\n  const { id } = await params  // 미래 탭 네비에서 사용\n  return <div>{children}</div>\n}\n\n// app/protected/groups/[id]/page.tsx\nasync function GroupPage({ params }: { params: Promise<{ id: string }> }) {\n  const { id } = await params\n  supabase = await createClient()\n  { data: authData, error } = await supabase.auth.getUser()\n  if (error || !authData?.user) redirect('/auth/login')\n  return <div><h1>그룹 홈</h1><p>준비 중</p></div>\n}",
+      "verificationCriteria": "- /protected/groups/[임의ID] 접속 시 '그룹 홈' h1과 '준비 중' 텍스트 표시\n- layout.tsx가 중첩 레이아웃으로 정상 작동\n- TypeScript 타입 에러 없음",
+      "analysisResult": "Task 002: /app/protected/groups/ 하위에 12개 빈 페이지와 1개 그룹 공통 레이아웃을 생성한다. 모든 페이지는 Next.js 15 App Router Server Component 패턴을 따르며, 인증 확인(getUser → redirect) 후 최소 UI(h1 + 준비 중 텍스트)를 렌더링한다. 동적 라우트 params는 Promise로 받아 await로 언래핑한다.",
+      "summary": "2개 파일 생성 완료. layout.tsx는 인증 확인 없는 최소 래퍼로 구현(기존 protected/layout.tsx 패턴 동일), params await 후 void 처리로 lint 경고 방지. page.tsx는 동적 params(Promise) await + 인증 확인 + 최소 UI 패턴 적용.",
+      "completedAt": "2026-04-14T08:59:37.306Z"
+    },
+    {
+      "id": "fd68f0bc-1f03-4f07-802c-4a1605dfb34b",
+      "name": "이벤트 관련 페이지 생성",
+      "description": "이벤트 관련 4개 페이지 생성:\n- app/protected/groups/[id]/events/new/page.tsx (이벤트 생성)\n- app/protected/groups/[id]/events/[eventId]/page.tsx (이벤트 상세)\n- app/protected/groups/[id]/events/[eventId]/edit/page.tsx (이벤트 수정)\n- app/protected/groups/[id]/events/[eventId]/attendance/page.tsx (참여 현황)",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "f9840fd5-0f77-4768-9386-b394507f0be8"
+        }
+      ],
+      "createdAt": "2026-04-14T08:53:34.504Z",
+      "updatedAt": "2026-04-14T09:12:44.749Z",
+      "relatedFiles": [
+        {
+          "path": "app/protected/groups/[id]/events/new/page.tsx",
+          "type": "CREATE",
+          "description": "이벤트 생성 페이지"
+        },
+        {
+          "path": "app/protected/groups/[id]/events/[eventId]/page.tsx",
+          "type": "CREATE",
+          "description": "이벤트 상세 페이지"
+        },
+        {
+          "path": "app/protected/groups/[id]/events/[eventId]/edit/page.tsx",
+          "type": "CREATE",
+          "description": "이벤트 수정 페이지"
+        },
+        {
+          "path": "app/protected/groups/[id]/events/[eventId]/attendance/page.tsx",
+          "type": "CREATE",
+          "description": "참여 현황 페이지"
+        }
+      ],
+      "implementationGuide": "// events/new: params: Promise<{ id: string }>\n// events/[eventId]/*: params: Promise<{ id: string; eventId: string }>\n\n각 페이지 패턴:\n1. const { id, eventId } = await params\n2. supabase.auth.getUser() → 미인증 redirect\n3. return <div><h1>페이지명</h1><p>준비 중</p></div>\n\n페이지명:\n- events/new: '이벤트 생성'\n- events/[eventId]: '이벤트 상세'\n- events/[eventId]/edit: '이벤트 수정'\n- events/[eventId]/attendance: '참여 현황'",
+      "verificationCriteria": "- 각 이벤트 라우트 접속 시 해당 페이지명 h1과 '준비 중' 텍스트 표시\n- 미인증 접속 시 /auth/login 리디렉션\n- TypeScript 타입 에러 없음",
+      "analysisResult": "Task 002: /app/protected/groups/ 하위에 12개 빈 페이지와 1개 그룹 공통 레이아웃을 생성한다. 모든 페이지는 Next.js 15 App Router Server Component 패턴을 따르며, 인증 확인(getUser → redirect) 후 최소 UI(h1 + 준비 중 텍스트)를 렌더링한다. 동적 라우트 params는 Promise로 받아 await로 언래핑한다.",
+      "summary": "이벤트 관련 4개 페이지 생성 완료. events/new(params:{id}), events/[eventId](params:{id,eventId}), events/[eventId]/edit(params:{id,eventId}), events/[eventId]/attendance(params:{id,eventId}). 모두 Next.js 15 async params 패턴 적용, 인증 확인 후 최소 UI 렌더링.",
+      "completedAt": "2026-04-14T09:12:44.747Z"
+    },
+    {
+      "id": "346e942c-beb1-4e33-b359-600cbc62623c",
+      "name": "투표 및 멤버/설정 페이지 생성",
+      "description": "투표 관련 4개 + 멤버/설정 2개 페이지 생성:\n- app/protected/groups/[id]/polls/new/page.tsx (투표 생성)\n- app/protected/groups/[id]/polls/[pollId]/page.tsx (투표 상세)\n- app/protected/groups/[id]/polls/[pollId]/edit/page.tsx (투표 수정)\n- app/protected/groups/[id]/members/page.tsx (멤버 관리)\n- app/protected/groups/[id]/settings/page.tsx (그룹 설정)",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "f9840fd5-0f77-4768-9386-b394507f0be8"
+        }
+      ],
+      "createdAt": "2026-04-14T08:53:34.504Z",
+      "updatedAt": "2026-04-14T09:12:47.300Z",
+      "relatedFiles": [
+        {
+          "path": "app/protected/groups/[id]/polls/new/page.tsx",
+          "type": "CREATE",
+          "description": "투표 생성 페이지"
+        },
+        {
+          "path": "app/protected/groups/[id]/polls/[pollId]/page.tsx",
+          "type": "CREATE",
+          "description": "투표 상세 페이지"
+        },
+        {
+          "path": "app/protected/groups/[id]/polls/[pollId]/edit/page.tsx",
+          "type": "CREATE",
+          "description": "투표 수정 페이지"
+        },
+        {
+          "path": "app/protected/groups/[id]/members/page.tsx",
+          "type": "CREATE",
+          "description": "멤버 관리 페이지"
+        },
+        {
+          "path": "app/protected/groups/[id]/settings/page.tsx",
+          "type": "CREATE",
+          "description": "그룹 설정 페이지"
+        }
+      ],
+      "implementationGuide": "// polls/new, members, settings: params: Promise<{ id: string }>\n// polls/[pollId]/*: params: Promise<{ id: string; pollId: string }>\n\n각 페이지 동일 패턴:\n1. await params로 언래핑\n2. supabase.auth.getUser() → 미인증 redirect\n3. return <div><h1>페이지명</h1><p>준비 중</p></div>\n\n페이지명:\n- polls/new: '투표 생성'\n- polls/[pollId]: '투표 상세'\n- polls/[pollId]/edit: '투표 수정'\n- members: '멤버 관리'\n- settings: '그룹 설정'",
+      "verificationCriteria": "- 각 라우트 접속 시 해당 페이지명 h1과 '준비 중' 텍스트 표시\n- 미인증 접속 시 /auth/login 리디렉션\n- TypeScript 타입 에러 없음\n- 전체 13개 파일 생성 완료 확인",
+      "analysisResult": "Task 002: /app/protected/groups/ 하위에 12개 빈 페이지와 1개 그룹 공통 레이아웃을 생성한다. 모든 페이지는 Next.js 15 App Router Server Component 패턴을 따르며, 인증 확인(getUser → redirect) 후 최소 UI(h1 + 준비 중 텍스트)를 렌더링한다. 동적 라우트 params는 Promise로 받아 await로 언래핑한다.",
+      "summary": "투표/멤버/설정 5개 페이지 생성 완료. polls/new, polls/[pollId], polls/[pollId]/edit, members, settings. 전체 13개 파일(레이아웃 1개 + 페이지 12개) 생성 완료. 모두 동일한 인증 확인 + 최소 UI 패턴 적용.",
+      "completedAt": "2026-04-14T09:12:47.296Z"
+    },
+    {
+      "id": "841234d2-ec37-47a3-9c91-bf4d7bb44521",
+      "name": "홈(/) 리디렉션 및 protected 네비바 개선",
+      "description": "1. app/page.tsx: Server Component에서 로그인 사용자를 /protected/groups로 리디렉션, 비로그인은 기존 UI 유지\n2. app/protected/layout.tsx: 브랜드명 '모임 매니저'로 변경, 링크를 /protected/groups로 변경, DeployButton 제거",
+      "status": "pending",
+      "dependencies": [],
+      "createdAt": "2026-04-14T09:16:58.144Z",
+      "updatedAt": "2026-04-14T09:16:58.144Z",
+      "relatedFiles": [
+        {
+          "path": "app/page.tsx",
+          "type": "TO_MODIFY",
+          "description": "홈 페이지 - 로그인 사용자 리디렉션 추가"
+        },
+        {
+          "path": "app/protected/layout.tsx",
+          "type": "TO_MODIFY",
+          "description": "protected 공통 레이아웃 - 네비바 개선"
+        },
+        {
+          "path": "components/auth-button.tsx",
+          "type": "REFERENCE",
+          "description": "AuthButton 컴포넌트 - 재사용"
+        },
+        {
+          "path": "lib/supabase/server.ts",
+          "type": "DEPENDENCY",
+          "description": "createClient 함수"
+        }
+      ],
+      "implementationGuide": "app/page.tsx:\n- import createClient from lib/supabase/server\n- 함수를 async로 변경\n- const supabase = await createClient()\n- const { data } = await supabase.auth.getClaims()\n- if (data?.claims) redirect('/protected/groups')\n- else return 기존 JSX\n\napp/protected/layout.tsx:\n- Link href를 /protected/groups로 변경\n- 텍스트를 '모임 매니저'로 변경\n- DeployButton import 및 사용 제거",
+      "verificationCriteria": "- 로그인 상태에서 / 접속 시 /protected/groups로 자동 이동\n- 비로그인 상태에서 / 접속 시 기존 튜토리얼 UI 표시\n- /protected/* 페이지 상단 네비에 '모임 매니저' 텍스트 표시\n- 네비 링크 클릭 시 /protected/groups로 이동",
+      "analysisResult": "Task 003: 공통 레이아웃 및 네비게이션 골격 구현. 신규 파일 6개 + 기존 파일 2개 수정. 모든 Client Component는 'use client' 선언, usePathname 사용. Server Component는 createClient() 패턴 유지. Tailwind + shadcn 색상 변수(foreground, muted-foreground) 사용."
+    },
+    {
+      "id": "d2c624d7-ed62-4eda-adff-402287593951",
+      "name": "그룹 탭 네비게이션 컴포넌트 구현",
+      "description": "components/group-tab-nav.tsx 생성: 그룹 내부 탭 네비게이션 (이벤트/투표/멤버/설정). usePathname으로 활성 탭 하이라이트. app/protected/groups/[id]/layout.tsx에 통합.",
+      "notes": "이벤트 탭 활성 조건: pathname === href || pathname.includes('/events')\n투표 탭 활성 조건: pathname.includes('/polls')\n멤버/설정: pathname.endsWith('/members'), pathname.endsWith('/settings')",
+      "status": "pending",
+      "dependencies": [],
+      "createdAt": "2026-04-14T09:16:58.144Z",
+      "updatedAt": "2026-04-14T09:16:58.144Z",
+      "relatedFiles": [
+        {
+          "path": "components/group-tab-nav.tsx",
+          "type": "CREATE",
+          "description": "그룹 탭 네비게이션 Client Component"
+        },
+        {
+          "path": "app/protected/groups/[id]/layout.tsx",
+          "type": "TO_MODIFY",
+          "description": "그룹 레이아웃 - 탭 네비 통합"
+        },
+        {
+          "path": "lib/utils.ts",
+          "type": "DEPENDENCY",
+          "description": "cn() 유틸"
+        }
+      ],
+      "implementationGuide": "'use client'\nimport { usePathname } from 'next/navigation'\nimport Link from 'next/link'\n\ntype Props = { groupId: string }\n\ntabs 배열:\n- { label: '이벤트', href: `/protected/groups/${id}` }\n- { label: '투표', href: `/protected/groups/${id}/polls` }\n- { label: '멤버', href: `/protected/groups/${id}/members` }\n- { label: '설정', href: `/protected/groups/${id}/settings` }\n\n활성 판단: pathname === tab.href (이벤트 탭은 pathname.startsWith 대신 정확히 일치 또는 events 포함으로 처리)\n\napp/protected/groups/[id]/layout.tsx:\n- params await해서 id 추출\n- GroupTabNav id={id} 삽입\n- children 렌더링",
+      "verificationCriteria": "- /protected/groups/[id] 접속 시 탭 4개(이벤트/투표/멤버/설정) 표시\n- 현재 경로에 맞는 탭이 활성 스타일로 표시\n- 탭 클릭 시 해당 경로로 이동\n- TypeScript 타입 에러 없음",
+      "analysisResult": "Task 003: 공통 레이아웃 및 네비게이션 골격 구현. 신규 파일 6개 + 기존 파일 2개 수정. 모든 Client Component는 'use client' 선언, usePathname 사용. Server Component는 createClient() 패턴 유지. Tailwind + shadcn 색상 변수(foreground, muted-foreground) 사용."
+    },
+    {
+      "id": "cd588b60-5e2e-4880-a586-7a183c35bad4",
+      "name": "브레드크럼 네비게이션 컴포넌트 구현",
+      "description": "components/breadcrumb-nav.tsx 생성: usePathname 기반 경로 파싱, 세그먼트 한국어 매핑, 클릭 가능한 링크 체인. app/protected/groups/[id]/layout.tsx에 탭 위에 삽입.",
+      "status": "pending",
+      "dependencies": [],
+      "createdAt": "2026-04-14T09:16:58.144Z",
+      "updatedAt": "2026-04-14T09:16:58.144Z",
+      "relatedFiles": [
+        {
+          "path": "components/breadcrumb-nav.tsx",
+          "type": "CREATE",
+          "description": "브레드크럼 네비게이션 Client Component"
+        },
+        {
+          "path": "app/protected/groups/[id]/layout.tsx",
+          "type": "TO_MODIFY",
+          "description": "그룹 레이아웃 - 브레드크럼 통합"
+        },
+        {
+          "path": "lib/utils.ts",
+          "type": "DEPENDENCY",
+          "description": "cn() 유틸"
+        }
+      ],
+      "implementationGuide": "'use client'\nimport { usePathname } from 'next/navigation'\nimport Link from 'next/link'\n\n세그먼트 한국어 매핑:\nconst segmentMap: Record<string, string> = {\n  protected: '홈',\n  groups: '내 그룹',\n  events: '이벤트',\n  polls: '투표',\n  members: '멤버',\n  settings: '설정',\n  new: '새로 만들기',\n  edit: '수정',\n  attendance: '참여 현황'\n}\n\n경로 파싱:\n- pathname.split('/').filter(Boolean)\n- UUID/숫자 세그먼트는 표시 생략 또는 '상세'로 표시\n- 각 세그먼트를 누적 href로 Link 생성\n- 마지막 세그먼트는 링크 없이 텍스트만\n\n삽입 위치: groups/[id]/layout.tsx의 GroupTabNav 위",
+      "verificationCriteria": "- 그룹 내부 페이지에서 현재 경로를 한국어로 표시\n- 각 세그먼트가 클릭 가능한 링크로 렌더링 (마지막 제외)\n- UUID 세그먼트는 생략 처리\n- TypeScript 타입 에러 없음",
+      "analysisResult": "Task 003: 공통 레이아웃 및 네비게이션 골격 구현. 신규 파일 6개 + 기존 파일 2개 수정. 모든 Client Component는 'use client' 선언, usePathname 사용. Server Component는 createClient() 패턴 유지. Tailwind + shadcn 색상 변수(foreground, muted-foreground) 사용."
+    },
+    {
+      "id": "2840620a-6d53-47a8-a441-124ef36a5bd7",
+      "name": "로딩 및 에러 바운더리 파일 생성",
+      "description": "Next.js 컨벤션에 따른 loading.tsx, error.tsx 파일 생성:\n- app/protected/groups/loading.tsx\n- app/protected/groups/error.tsx\n- app/protected/groups/[id]/loading.tsx\n- app/protected/groups/[id]/error.tsx",
+      "status": "pending",
+      "dependencies": [],
+      "createdAt": "2026-04-14T09:16:58.144Z",
+      "updatedAt": "2026-04-14T09:16:58.144Z",
+      "relatedFiles": [
+        {
+          "path": "app/protected/groups/loading.tsx",
+          "type": "CREATE",
+          "description": "그룹 목록 로딩 상태"
+        },
+        {
+          "path": "app/protected/groups/error.tsx",
+          "type": "CREATE",
+          "description": "그룹 목록 에러 바운더리"
+        },
+        {
+          "path": "app/protected/groups/[id]/loading.tsx",
+          "type": "CREATE",
+          "description": "그룹 내부 로딩 상태"
+        },
+        {
+          "path": "app/protected/groups/[id]/error.tsx",
+          "type": "CREATE",
+          "description": "그룹 내부 에러 바운더리"
+        }
+      ],
+      "implementationGuide": "loading.tsx 패턴 (Server Component):\n- 중앙 정렬 스피너 또는 '로딩 중...' 텍스트\n- animate-spin 클래스 사용\n\nerror.tsx 패턴 (Client Component 필수):\n'use client'\nexport default function Error({\n  error,\n  reset,\n}: {\n  error: Error & { digest?: string }\n  reset: () => void\n}) {\n  return (\n    <div>\n      <h2>오류가 발생했습니다</h2>\n      <p>{error.message}</p>\n      <button onClick={reset}>다시 시도</button>\n    </div>\n  )\n}",
+      "verificationCriteria": "- error.tsx에 'use client' 선언 확인\n- error/reset props 타입 정확\n- loading.tsx는 Server Component (use client 없음)\n- TypeScript 타입 에러 없음",
+      "analysisResult": "Task 003: 공통 레이아웃 및 네비게이션 골격 구현. 신규 파일 6개 + 기존 파일 2개 수정. 모든 Client Component는 'use client' 선언, usePathname 사용. Server Component는 createClient() 패턴 유지. Tailwind + shadcn 색상 변수(foreground, muted-foreground) 사용."
+    }
+  ]
+}
